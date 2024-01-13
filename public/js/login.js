@@ -18,8 +18,10 @@ async function LoginForm(event)
         }
 
     } catch (error) {
-        document.body.innerHTML += `<ul class= "list-group">
-        <li class= "list-group-item" style="background-color: yellow; color:red;">${error.response.data.error}</li>
+        document.body.innerHTML += `<ul class= "list-group" style="background-color: yellow;">
+        <li class= "list-group-item" style="background-color: yellow; color:red;" >
+        ${error.response.data.error}
+        </li>
         </ul>`
     }
 }

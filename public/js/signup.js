@@ -21,6 +21,7 @@ async function SignupForm(event)
         if(res.status == 201)
         {   
             alert(res.data.message)
+            window.location.href = "./login.html"
         }
     } catch (error) {
         document.getElementById("peter").innerHTML += `<ul class= "list-group" style="background-color: yellow;">
