@@ -16,8 +16,18 @@ async function SignupForm(event)
         password
     }
     try {
+        console.log(obj)
         let res = await axios.post("http://localhost:3000/signup",obj)
+        if(res.status == 201)
+        {   
+            alert(res.data.message)
+        }
     } catch (error) {
+        document.getElementById("peter").innerHTML += `<ul class= "list-group" style="background-color: yellow;">
+        <li class= "list-group-item" style="background-color: yellow; color:red;" >
+        ${error.response.data.error}
+        </li>
+        </ul>`
         console.log(error)        
     }
 }
