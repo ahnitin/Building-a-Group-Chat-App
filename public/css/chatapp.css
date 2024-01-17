@@ -1,0 +1,14 @@
+.sendbtn{
+    height: 30px;
+    width: 100%;
+    background-color: blue;
+    text-align: center;
+    bottom: 10px;
+    position: absolute;
+}
+.sendbtn from input[type ="text"]
+{
+    position: absolute;
+    height: 30px;
+    width: 50%;
+}

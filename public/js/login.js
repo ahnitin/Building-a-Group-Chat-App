@@ -15,11 +15,12 @@ async function LoginForm(event)
         if(res.status===201) {
             alert(res.data.message);
             localStorage.setItem("token",res.data.token);
+            window.location.href="/chatapp.html"
         }
 
     } catch (error) {
         document.body.innerHTML += `<ul class= "list-group" style="background-color: yellow;">
-        <li class= "list-group-item" style="background-color: yellow; color:red;" >
+        <li class= "list-group-item" style="background-color: yellow; color:red; height: 35px; width:200px; text-align:center;" >
         ${error.response.data.error}
         </li>
         </ul>`
