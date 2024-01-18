@@ -1,16 +1,30 @@
 document.getElementById("sendbtn").addEventListener("click",(event)=>{
     SendMessage(event)
 })
+function AddingToList(name)
+{
+    let parent = document.getElementById("chats");
+    let li = document.createElement("li");
+    li.textContent = `${name} Joined`;
+    li.className = "list-group-item"
+    li.style.textAlign = "center"
+    li.style.backgroundColor = "#c5c064"
+    parent.appendChild(li);
+}
 
 async function Refresh()
 {
     try {
+        let parent = document.getElementById("chats");
+        parent.innerHTML ="";
         let token = localStorage.getItem("token")
         let parsedToken = parseJwt(token)
         let userName = parsedToken.name;
-        console.log(userName)
+        
         let res = await axios.get("http://localhost:3000/chats",{headers:{"Authorization":token}});
+        AddingToList("You")
         ChatsOnScreen(res.data.chats,res.data.id,res.data.name)
+        scrollToBottom(parent);
     } catch (error) {
         alert("Error while fetching chats!")
     }
@@ -20,6 +34,7 @@ function ChatsOnScreen(arr,id,name)
 {
     console.log(arr,id,name)
     let i =0;
+
     while(arr.length>i)
     {
         if(arr[i].userId == id)
@@ -41,6 +56,7 @@ function ChatsOnScreen(arr,id,name)
         }
         i++;
     }
+    scrollToBottom(parent);
 }
 async function SendMessage(event)
 {
@@ -72,6 +88,7 @@ function ShowMyChatsOnScreen(obj)
     li.style.textAlign = "right"
     li.style.backgroundColor = "grey"
     parent.appendChild(li);
+    scrollToBottom(parent);
 }
 function parseJwt(token) {
     var base64Url = token.split(".")[1];
@@ -88,3 +105,11 @@ function parseJwt(token) {
   
     return JSON.parse(jsonPayload);
   }
+function autoRefresh() {
+    Refresh();
+}
+setInterval(autoRefresh, 10000);
+
+function scrollToBottom(element) {
+    element.scrollTop = element.scrollHeight;
+}

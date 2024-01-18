@@ -12,9 +12,9 @@
   </head>
   <body>
     <h1 style="text-align: center;">Chat App!</h1>
-    <div class="col-md-12" style="max-height: 400px; overflow-y: scroll;">
+    <div id="scrolling" style="max-height: 400px; border: 1px solid #ccc;">
       <div id="main" class="card card-body">
-        <ul id="chats" class="list-group">
+        <ul id="chats" style="max-height: 350px; overflow-y: scroll;" class="list-group">
           <li class="list-group-item">
             You Joined
           </li>
@@ -26,7 +26,6 @@
         <input type="text" name="message" id="message">
         <input type="button" id="sendbtn" value="SEND">
     </section>
-    
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="./js/chatapp.js"></script>
     <!-- Optional JavaScript -->
