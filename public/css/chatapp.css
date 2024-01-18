@@ -3,8 +3,8 @@
     width: 100%;
     background-color: blue;
     text-align: center;
-    bottom: 10px;
-    position: absolute;
+    /* bottom: 10px;
+    position: absolute; */
 }
 .sendbtn from input[type ="text"]
 {
@@ -13,15 +13,7 @@
     width: 50%;
 }
 
-.list-group{
-    text-align: center;
-    display: flex;
-    justify-content: center;
-}
-
 .list-group-item{
-    
-    background-color: grey;
-    width: 100%;
-    text-align: center;
+    background-color: rgb(231, 223, 223);
+    text-align: left;
 }

@@ -25,3 +25,20 @@ exports.postAddChat = async(req,res)=>{
         })
     }
 }
+exports.getChats = async(req,res)=>{
+    try {
+        
+        let chats = await Chats.findAll();
+        console.log("Working")
+        res.status(201).json({
+            chats,
+            name:req.user.name,
+            id:req.user.id,
+        })
+        
+    } catch (error) {
+        res.status(500).json({
+            error:"Something Went Wrong!!"
+        })
+    }
+}
