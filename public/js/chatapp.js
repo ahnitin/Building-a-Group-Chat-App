@@ -20,39 +20,78 @@ async function Refresh()
         let token = localStorage.getItem("token")
         let parsedToken = parseJwt(token)
         let userName = parsedToken.name;
-        
-        let res = await axios.get("http://localhost:3000/chats",{headers:{"Authorization":token}});
-        AddingToList("You")
-        ChatsOnScreen(res.data.chats,res.data.id,res.data.name)
+        let total = JSON.parse(localStorage.getItem("chats"));
+        let lastitem;
+        if(!total){lastitem=0;}
+        else {lastitem = total[total.length-1].id;}
+        let res = await axios.get(`http://localhost:3000/chats?items=${lastitem}`,{headers:{"Authorization":token}});
+        StoreToLocalStorage(res.data.chats,res.data.id,res.data.name,res.data.users);
         scrollToBottom(parent);
     } catch (error) {
         alert("Error while fetching chats!")
     }
 }
 Refresh();
-function ChatsOnScreen(arr,id,name)
+function StoreToLocalStorage(data,id,name,users)
 {
-    console.log(arr,id,name)
+    let oldarr = JSON.parse(localStorage.getItem("chats"));
+    if(oldarr)
+    {if(oldarr.length>1000)
+        {
+            let diff = oldarr.length-1000;
+            for(let i=0;i<diff;i++)
+            {
+                oldarr.shift();
+            }
+        }
+        let newArr = oldarr.concat(data)
+        let stringifydata = JSON.stringify(newArr)
+        localStorage.setItem("chats",stringifydata);
+    }
+    else
+    {
+        let stringifydata = JSON.stringify(data)
+        localStorage.setItem("chats",stringifydata);
+    }
+    let expenses = JSON.parse(localStorage.getItem("chats"));
+    ChatsOnScreen(expenses,id,name,users)
+}
+function ChatsOnScreen(arr,id,name,users)
+{
+    AddingToList("You")
     let i =0;
-
+    for(let k =0;k<users.length;k++)
+    {
+        if(users[k].id != id)
+        {
+            AddingToList(users[k].name)
+        }
+    }
     while(arr.length>i)
     {
         if(arr[i].userId == id)
         {
             let parent = document.getElementById("chats");
             let li = document.createElement("li");
-            li.textContent = arr[i].message;
+            li.innerHTML = `<big><sup>~You:</sup>${arr[i].message}</big>`;
             li.className = "list-group-item"
             li.style.textAlign = "right"
             li.style.backgroundColor = "grey"
             parent.appendChild(li);
         }
-        else{
-            let parent = document.getElementById("chats");
-            let li = document.createElement("li");
-            li.textContent = arr[i].message;
-            li.className = "list-group-item"
-            parent.appendChild(li);
+        else {
+            for(let j =0;j<users.length;j++)
+            {
+                if(arr[i].userId == users[j].id)
+                {
+                    let parent = document.getElementById("chats");
+                    let li = document.createElement("li");
+                    li.innerHTML = `<big><sup>~${users[j].name}:</sup>${arr[i].message}</big>`;
+                    li.className = "list-group-item"
+                    parent.appendChild(li);
+                }
+            
+            }
         }
         i++;
     }

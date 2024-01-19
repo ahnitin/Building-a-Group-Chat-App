@@ -1,5 +1,7 @@
 const sequelize = require("../connection/database");
+const { Op } = require('sequelize');
 const Chats = require("../models/chats");
+const User = require("../models/user")
 exports.postAddChat = async(req,res)=>{
     const t = await sequelize.transaction();
     try {
@@ -27,13 +29,31 @@ exports.postAddChat = async(req,res)=>{
 }
 exports.getChats = async(req,res)=>{
     try {
+        let items = req.query.items;
+        if(items == undefined || NaN){
+            items = "0";
+        } 
+        console.log(items,"ye hain items")
+        items = Number.parseInt(items)
         
-        let chats = await Chats.findAll();
+        let chats = await Chats.findAll({
+           where:{
+            id:{
+                [Op.gt]: items
+            }
+           }
+        });
+        if(chats == undefined)
+        {
+            console.log("it's undefined")
+        }
+        let users = await User.findAll();
         console.log("Working")
         res.status(201).json({
             chats,
             name:req.user.name,
             id:req.user.id,
+            users
         })
         
     } catch (error) {
