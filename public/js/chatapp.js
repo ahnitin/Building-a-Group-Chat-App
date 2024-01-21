@@ -20,18 +20,51 @@ async function Refresh()
         let token = localStorage.getItem("token")
         let parsedToken = parseJwt(token)
         let userName = parsedToken.name;
+        console.log("no chats")
         let total = JSON.parse(localStorage.getItem("chats"));
         let lastitem;
-        if(!total){lastitem=0;}
-        else {lastitem = total[total.length-1].id;}
+        console.log("no chats3")
+        if(!total){
+            console.log("nochats4:")
+            lastitem=0;
+        }
+        else {
+            if(total.length == 0)
+            {
+                lastitem =0;
+            }
+            else{
+                lastitem = total[total.length-1].id;
+            }
+            }
+        
         let res = await axios.get(`http://localhost:3000/chats?items=${lastitem}`,{headers:{"Authorization":token}});
-        StoreToLocalStorage(res.data.chats,res.data.id,res.data.name,res.data.users);
-        scrollToBottom(parent);
+        if(res.data.chats.length == 0)
+        {
+            console.log("no chats1")
+            NochatsOnScreen();
+        }
+        else{
+            StoreToLocalStorage(res.data.chats,res.data.id,res.data.name,res.data.users);
+            scrollToBottom(parent);
+        }
+
     } catch (error) {
         alert("Error while fetching chats!")
     }
 }
 Refresh();
+function NochatsOnScreen()
+{
+    let parent = document.getElementById("chats");
+    let li = document.createElement("li");
+    li.textContent = `No Chats Available`;
+    li.className = "list-group-item"
+    li.style.textAlign = "center"
+    li.style.left="300px"
+    li.style.backgroundColor = "#c5c064"
+    parent.appendChild(li);
+}
 function StoreToLocalStorage(data,id,name,users)
 {
     let oldarr = JSON.parse(localStorage.getItem("chats"));
@@ -73,9 +106,11 @@ function ChatsOnScreen(arr,id,name,users)
         {
             let parent = document.getElementById("chats");
             let li = document.createElement("li");
-            li.innerHTML = `<big><sup>~You:</sup>${arr[i].message}</big>`;
+            li.innerHTML = `<big><sup style="text-align: right;">~You: </sup> ${arr[i].message}</big>`;
             li.className = "list-group-item"
-            li.style.textAlign = "right"
+            li.style.left = "700px";
+            li.style.float = "right"
+            li.style.textAlign = "left"
             li.style.backgroundColor = "grey"
             parent.appendChild(li);
         }
@@ -86,7 +121,7 @@ function ChatsOnScreen(arr,id,name,users)
                 {
                     let parent = document.getElementById("chats");
                     let li = document.createElement("li");
-                    li.innerHTML = `<big><sup>~${users[j].name}:</sup>${arr[i].message}</big>`;
+                    li.innerHTML = `<big><sup>~${users[j].name}: </sup> ${arr[i].message}</big>`;
                     li.className = "list-group-item"
                     parent.appendChild(li);
                 }
@@ -124,6 +159,7 @@ function ShowMyChatsOnScreen(obj)
     let li = document.createElement("li");
     li.textContent = obj.message;
     li.className = "list-group-item"
+    li.style.left = "700px";
     li.style.textAlign = "right"
     li.style.backgroundColor = "grey"
     parent.appendChild(li);
@@ -152,3 +188,34 @@ setInterval(autoRefresh, 10000);
 function scrollToBottom(element) {
     element.scrollTop = element.scrollHeight;
 }
+
+async function UsersforGroups()
+{
+    try {
+        let res = await axios.get("http://localhost:3000/users");
+        if(res.status == 201)
+        {
+            console.log("users fetched")
+            ShowUsers(res.data.users);
+        }
+    } catch (error) {
+        alert("Unable to fetch users")
+    }
+}
+function ShowUsers(users)
+{
+    
+    let parent = document.getElementById("selectusers");
+    console.log(users)
+    console.log(users[0].name)
+    let i =0;
+    while(i<users.length)
+    {
+        let label = document.createElement("label");
+        label.innerHTML =`      
+        <input type="checkbox" name="checkboxes" value="${users[i].name}"> ${users[i].name}`
+        parent.appendChild(label);
+        i++;
+    }
+}
+UsersforGroups()

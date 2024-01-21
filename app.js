@@ -11,6 +11,7 @@ const chatRoutes = require("./routes/chats");
 const sequelize = require("./connection/database");
 const User = require("./models/user");
 const Chats = require("./models/chats");
+const Groups = require('./models/groups')
 app.use(express.urlencoded({extended:false}));
 app.use(express.json());
 app.use(cors({
@@ -27,6 +28,8 @@ app.use((req,res)=>{
 User.hasMany(Chats)
 Chats.belongsTo(User);
 
+User.belongsToMany(Groups,{through: 'user_group'});
+Groups.belongsToMany(User,{through: 'user_group'});
 
 async function main()
 {

@@ -86,3 +86,17 @@ exports.postLogin = async(req,res)=>{
         })
     }
 }
+exports.getUsers =async(req,res)=>{
+    try {
+        let users = await User.findAll();
+        res.status(201).json({
+            users:users
+        }) 
+    } catch (error) {
+        res.status(500)
+        .json({
+            success:false,
+            error: "Something Went Wrong!"
+        })
+    }
+}
