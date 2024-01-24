@@ -1,6 +1,17 @@
 document.getElementById("sendbtn").addEventListener("click",(event)=>{
     SendMessage(event)
 })
+document.getElementById("logout").addEventListener("click",()=>{
+    localStorage.clear();
+    window.location.href ="/login.html"
+})
+// document.getElementById("common").addEventListener("click",()=>{
+//     localStorage.removeItem("chats");
+//     localStorage.setItem("selectedGroup",0)
+//     let parent = document.getElementById("gpname")
+//     parent.innerHTML = "Common"
+//     Refresh(0);
+// })
 function AddingToList(name)
 {
     let parent = document.getElementById("chats");
@@ -12,7 +23,7 @@ function AddingToList(name)
     parent.appendChild(li);
 }
 
-async function Refresh()
+async function Refresh(id)
 {
     try {
         let parent = document.getElementById("chats");
@@ -20,16 +31,13 @@ async function Refresh()
         let token = localStorage.getItem("token")
         let parsedToken = parseJwt(token)
         let userName = parsedToken.name;
-        console.log("no chats")
         let total = JSON.parse(localStorage.getItem("chats"));
         let lastitem;
-        console.log("no chats3")
         if(!total){
-            console.log("nochats4:")
             lastitem=0;
         }
         else {
-            if(total.length == 0)
+            if(total.length === 0)
             {
                 lastitem =0;
             }
@@ -38,22 +46,14 @@ async function Refresh()
             }
             }
         
-        let res = await axios.get(`http://localhost:3000/chats?items=${lastitem}`,{headers:{"Authorization":token}});
-        if(res.data.chats.length == 0)
-        {
-            console.log("no chats1")
-            NochatsOnScreen();
-        }
-        else{
+        let res = await axios.get(`http://localhost:3000/chats?items=${lastitem}&groupid=${id}`,{headers:{"Authorization":token}});
             StoreToLocalStorage(res.data.chats,res.data.id,res.data.name,res.data.users);
             scrollToBottom(parent);
-        }
 
     } catch (error) {
         alert("Error while fetching chats!")
     }
 }
-Refresh();
 function NochatsOnScreen()
 {
     let parent = document.getElementById("chats");
@@ -87,7 +87,11 @@ function StoreToLocalStorage(data,id,name,users)
         localStorage.setItem("chats",stringifydata);
     }
     let expenses = JSON.parse(localStorage.getItem("chats"));
-    ChatsOnScreen(expenses,id,name,users)
+    if(expenses.length == 0)
+    {
+        NochatsOnScreen()
+    }
+    else ChatsOnScreen(expenses,id,name,users)
 }
 function ChatsOnScreen(arr,id,name,users)
 {
@@ -140,18 +144,24 @@ async function SendMessage(event)
         message
     }
     try {
+        let groupid = localStorage.getItem("selectedGroup");
         let token = localStorage.getItem("token");
-        console.log(token,obj)
-        let res = await axios.post("http://localhost:3000/chats",obj,{headers:{"Authorization":token}})
+        let res = await axios.post(`http://localhost:3000/chats?groupid=${groupid}`,obj,{headers:{"Authorization":token}})
         ShowMyChatsOnScreen(res.data.chat);
     } catch (error) {
-        document.body.innerHTML += `<ul class= "list-group" style="background-color: yellow;">
+        document.body.innerHTML += `<ul id="SomethingWrong">
         <li class= "list-group-item" style="background-color: yellow; color:red; height: 35px; width:200px; text-align:center;" >
         ${error.response.data.error}
         </li>
-        </ul>`
+        </ul>
+        <script>
+            const SomethingWrong = document.getElementById("SomethingWrong")
+            setTimeout(function(){
+                SomethingWrong.innerHTML = "";
+            },6000)
+        </script>
+        `
     }
-    console.log(message)
 }
 function ShowMyChatsOnScreen(obj)
 {
@@ -180,11 +190,6 @@ function parseJwt(token) {
   
     return JSON.parse(jsonPayload);
   }
-function autoRefresh() {
-    Refresh();
-}
-setInterval(autoRefresh, 10000);
-
 function scrollToBottom(element) {
     element.scrollTop = element.scrollHeight;
 }
@@ -195,7 +200,6 @@ async function UsersforGroups()
         let res = await axios.get("http://localhost:3000/users");
         if(res.status == 201)
         {
-            console.log("users fetched")
             ShowUsers(res.data.users);
         }
     } catch (error) {
@@ -204,18 +208,142 @@ async function UsersforGroups()
 }
 function ShowUsers(users)
 {
-    
+    let token = localStorage.getItem("token")
+    let parsedToken = parseJwt(token)
+    let userName = parsedToken.name;
     let parent = document.getElementById("selectusers");
-    console.log(users)
-    console.log(users[0].name)
     let i =0;
     while(i<users.length)
     {
+       if(users[i].name != userName)
+       {
         let label = document.createElement("label");
         label.innerHTML =`      
-        <input type="checkbox" name="checkboxes" value="${users[i].name}"> ${users[i].name}`
+        <input type="checkbox" name="checkboxes" value="${users[i].email}"> ${users[i].name}`
         parent.appendChild(label);
+       }
         i++;
     }
 }
 UsersforGroups()
+document.getElementById("newgroup").addEventListener("submit",(event)=>{
+    CreateNewGroup(event)
+})
+async function CreateNewGroup(event)
+{
+    event.preventDefault();
+    let groupname = document.getElementById("name").value;
+    var checkboxes = document.getElementsByName("checkboxes");
+    var selectedCheckboxes = Array.from(checkboxes).filter(checkbox => checkbox.checked);
+    var selectedValues = selectedCheckboxes.map(checkbox => checkbox.value);
+    console.log("Selected Checkboxes:", selectedValues);
+    let arr = Array.from(selectedValues)
+    let obj ={
+        groupname,
+        users:arr
+    }
+    let token = localStorage.getItem("token")
+    try {
+        let res= await axios.post("http://localhost:3000/groups",obj,{headers:{"Authorization":token}})
+        
+    } catch (error) {
+        alert("Unable to create Group")
+    }
+}
+async function GetGroups()
+{
+    let token = localStorage.getItem("token")
+    try {
+        let res = await axios.get("http://localhost:3000/groups",{headers:{"Authorization":token}});
+        GroupsOnScreen(res.data.groups);
+        
+    } catch (error) {
+        alert("Error in fetching Groups")
+    }
+}
+GetGroups();
+function GroupsOnScreen(groups)
+{
+    let GroupParent = document.getElementById("inputs");
+    let i =0;
+    while(groups.length>i)
+    {
+        let newDiv = document.createElement("div");
+        newDiv.className="groupdiv"
+        let groupBtn = document.createElement("input");
+        groupBtn.className ="groupinput"
+        let editBtn = document.createElement("button");
+        let span = document.createElement("span");
+        span.className="material-symbols-outlined"
+        span.textContent = "edit"
+        editBtn.appendChild(span);
+        editBtn.className ="btn btn-outline-primary btn-lg mb-3 mb-lg-0" 
+        editBtn.setAttribute('data-bs-toggle', 'modal');
+        editBtn.setAttribute('data-bs-target', '#signup-form');
+        groupBtn.type = "button";
+        let name = groups[i].name;
+        let grpid = groups[i].id;
+        groupBtn.id = `${name}`;
+        groupBtn.value =`${name}`;
+        groupBtn.addEventListener("click",()=>{
+            SelectedGroup(grpid,name);
+        })
+        editBtn.addEventListener("click",(event)=>{
+            EditSelectedGroup(grpid,name)
+        })
+        GroupParent.appendChild(newDiv);
+        newDiv.appendChild(groupBtn);
+        newDiv.appendChild(editBtn)
+        i++;
+    }
+}
+async function SelectedGroup(id,name)
+{
+    localStorage.removeItem("chats");
+    localStorage.setItem("selectedGroup",id)
+    let parent = document.getElementById("gpname")
+    parent.innerHTML = `${name}`
+    Refresh(id)
+}
+function autoRefresh() {
+    let id = localStorage.getItem("selectedGroup")
+    if(id)
+    {
+    Refresh(id);
+    }
+}
+setInterval(autoRefresh, 10000);
+localStorage.removeItem("selectedGroup");
+
+async function EditSelectedGroup(grpid,name)
+{   
+    try {
+        let res = await axios.get("http://localhost:3000/users");
+        if(res.status == 201)
+        {
+            ShowgroupUsers(res.data.users);
+        }
+    } catch (error) {
+        alert("Unable to fetch users")
+    }
+    function ShowgroupUsers(users)
+    {
+        let token = localStorage.getItem("token")
+        let parsedToken = parseJwt(token)
+        let userName = parsedToken.name;
+        let parent = document.getElementById("slectedgroupsusers");
+        let i =0;
+        while(i<users.length)
+        {
+           if(users[i].name != userName)
+           {
+            let label = document.createElement("label");
+            label.innerHTML =`      
+            <input type="checkbox" name="checkboxes" value="${users[i].email}"> ${users[i].name}`
+            parent.appendChild(label);
+           }
+            i++;
+        }
+    }
+
+}
