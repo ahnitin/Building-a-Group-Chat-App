@@ -12,6 +12,8 @@ document.getElementById("logout").addEventListener("click",()=>{
 //     parent.innerHTML = "Common"
 //     Refresh(0);
 // })
+
+//This function is show how many users joined Chat
 function AddingToList(name)
 {
     let parent = document.getElementById("chats");
@@ -22,7 +24,7 @@ function AddingToList(name)
     li.style.backgroundColor = "#c5c064"
     parent.appendChild(li);
 }
-
+//Refresh function
 async function Refresh(id)
 {
     try {
@@ -93,6 +95,7 @@ function StoreToLocalStorage(data,id,name,users)
     }
     else ChatsOnScreen(expenses,id,name,users)
 }
+// DOM Manupulation for adding chats on Screen
 function ChatsOnScreen(arr,id,name,users)
 {
     AddingToList("You")
@@ -136,6 +139,7 @@ function ChatsOnScreen(arr,id,name,users)
     }
     scrollToBottom(parent);
 }
+// Sending Messages
 async function SendMessage(event)
 {
     event.preventDefault();
@@ -175,6 +179,7 @@ function ShowMyChatsOnScreen(obj)
     parent.appendChild(li);
     scrollToBottom(parent);
 }
+// Decrpting the Token
 function parseJwt(token) {
     var base64Url = token.split(".")[1];
     var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
@@ -193,7 +198,7 @@ function parseJwt(token) {
 function scrollToBottom(element) {
     element.scrollTop = element.scrollHeight;
 }
-
+// Getting Users for the groups which will be Created
 async function UsersforGroups()
 {
     try {
@@ -229,6 +234,8 @@ UsersforGroups()
 document.getElementById("newgroup").addEventListener("submit",(event)=>{
     CreateNewGroup(event)
 })
+
+// Creating Groups and Group related Tasks
 async function CreateNewGroup(event)
 {
     event.preventDefault();
@@ -255,14 +262,15 @@ async function GetGroups()
     let token = localStorage.getItem("token")
     try {
         let res = await axios.get("http://localhost:3000/groups",{headers:{"Authorization":token}});
-        GroupsOnScreen(res.data.groups);
+        console.log(res.data.admins)
+        GroupsOnScreen(res.data.groups,res.data.admins);
         
     } catch (error) {
         alert("Error in fetching Groups")
     }
 }
 GetGroups();
-function GroupsOnScreen(groups)
+async function GroupsOnScreen(groups,admins)
 {
     let GroupParent = document.getElementById("inputs");
     let i =0;
@@ -272,14 +280,6 @@ function GroupsOnScreen(groups)
         newDiv.className="groupdiv"
         let groupBtn = document.createElement("input");
         groupBtn.className ="groupinput"
-        let editBtn = document.createElement("button");
-        let span = document.createElement("span");
-        span.className="material-symbols-outlined"
-        span.textContent = "edit"
-        editBtn.appendChild(span);
-        editBtn.className ="btn btn-outline-primary btn-lg mb-3 mb-lg-0" 
-        editBtn.setAttribute('data-bs-toggle', 'modal');
-        editBtn.setAttribute('data-bs-target', '#signup-form');
         groupBtn.type = "button";
         let name = groups[i].name;
         let grpid = groups[i].id;
@@ -288,12 +288,29 @@ function GroupsOnScreen(groups)
         groupBtn.addEventListener("click",()=>{
             SelectedGroup(grpid,name);
         })
-        editBtn.addEventListener("click",(event)=>{
-            EditSelectedGroup(grpid,name)
-        })
         GroupParent.appendChild(newDiv);
         newDiv.appendChild(groupBtn);
-        newDiv.appendChild(editBtn)
+        for(let j=0;j<admins.length;j++)
+        {
+            if(groups[i].id == admins[j].groupId)
+            {
+                let editBtn = document.createElement("button");
+                let span = document.createElement("span");
+                span.className="material-symbols-outlined"
+                span.textContent = "edit"
+                editBtn.appendChild(span);
+                editBtn.className ="btn btn-outline-primary btn-lg mb-3 mb-lg-0" 
+                editBtn.setAttribute('data-bs-toggle', 'modal');
+                editBtn.setAttribute('data-bs-target', '#editgroup-form');
+                
+                editBtn.addEventListener("click",(event)=>{
+                    document.getElementById("slectedgroupsusers").innerHTML="";
+                    EditSelectedGroup(event,grpid,name)
+                })
+                
+                newDiv.appendChild(editBtn)
+            }
+        }
         i++;
     }
 }
@@ -305,6 +322,7 @@ async function SelectedGroup(id,name)
     parent.innerHTML = `${name}`
     Refresh(id)
 }
+// Auto Refresh Function
 function autoRefresh() {
     let id = localStorage.getItem("selectedGroup")
     if(id)
@@ -315,35 +333,177 @@ function autoRefresh() {
 setInterval(autoRefresh, 10000);
 localStorage.removeItem("selectedGroup");
 
-async function EditSelectedGroup(grpid,name)
-{   
+// Button for edititng the Group only for admins
+async function EditSelectedGroup(event,grpid,name)
+{
+    let h1 = document.getElementById("group__name");
+    h1.innerHTML = `${name}`   
+    localStorage.setItem("selectedGroup",grpid);
+    event.preventDefault()
     try {
-        let res = await axios.get("http://localhost:3000/users");
-        if(res.status == 201)
+        let res = await axios.get(`http://localhost:3000/Allusers?groupid=${grpid}`);
+        if(res.status == 200)
         {
-            ShowgroupUsers(res.data.users);
+            ShowgroupUsers(res.data.adminUsers,res.data.groupUsers,res.data.otherUsers,grpid,name);
         }
     } catch (error) {
         alert("Unable to fetch users")
     }
-    function ShowgroupUsers(users)
+    function ShowgroupUsers(adminUsers,groupUsers,otherUsers,grpid,name)
     {
+        document.getElementById("Group_Members").innerHTML =""
         let token = localStorage.getItem("token")
         let parsedToken = parseJwt(token)
         let userName = parsedToken.name;
         let parent = document.getElementById("slectedgroupsusers");
         let i =0;
-        while(i<users.length)
+        while(i<adminUsers.length)
         {
-           if(users[i].name != userName)
-           {
+            if(adminUsers[i].name != userName)
+            {
+                let label = document.createElement("label");
+                label.innerHTML =`      
+                <input type="checkbox" class="editcheckbox" value="${adminUsers[i].email}" readonly checked> ${adminUsers[i].name}`
+                let adminbtn = document.createElement("button");
+                adminbtn.innerHTML ="Remove Admin"
+                adminbtn.addEventListener("click",(event)=>{
+                    let a = adminbtn.previousElementSibling.value;
+                    console.log(a)
+                    RemoveUserAdmin(event,a)
+                })
+                let RemoveUserBtn = document.createElement("button");
+                RemoveUserBtn.innerHTML ="Remove User";
+                RemoveUserBtn.addEventListener("click",(event)=>{
+                    let a = RemoveUserBtn.previousElementSibling.previousElementSibling.value;
+                    console.log(a)
+                    RemoveUserFromGroup(event,a)
+                })
+                label.appendChild(adminbtn)
+                label.appendChild(RemoveUserBtn)
+                document.getElementById("Group_Members").appendChild(label);
+            }
+            i++;
+        }
+        i=0;
+        while(i<groupUsers.length )
+        {
             let label = document.createElement("label");
             label.innerHTML =`      
-            <input type="checkbox" name="checkboxes" value="${users[i].email}"> ${users[i].name}`
+            <input type="checkbox" class="editcheckbox" value="${groupUsers[i].email}" readonly checked> ${groupUsers[i].name}`
+            let adminbtn = document.createElement("button");
+            adminbtn.innerHTML ="Add as Admin"
+            adminbtn.addEventListener("click",(event)=>{
+                let a = adminbtn.previousElementSibling.value;
+                console.log(a)
+                CreateUserAdmin(event,a)
+            })
+            let RemoveUserBtn = document.createElement("button");
+                RemoveUserBtn.innerHTML ="Remove User";
+                RemoveUserBtn.addEventListener("click",(event)=>{
+                    let a = RemoveUserBtn.previousElementSibling.previousElementSibling.value;
+                    console.log(a)
+                    RemoveUserFromGroup(event,a)
+                })
+            label.appendChild(adminbtn)
+            label.appendChild(RemoveUserBtn)
+            document.getElementById("Group_Members").appendChild(label);
+            i++;
+        }
+        i =0;
+        while(i<otherUsers.length)
+        {
+            let label = document.createElement("label");
+            label.innerHTML =`      
+            <input type="checkbox" class="editcheckbox1" value="${otherUsers[i].email}"> ${otherUsers[i].name}`
             parent.appendChild(label);
-           }
             i++;
         }
     }
 
+}
+async function CreateUserAdmin(event,email_id)
+{
+    event.preventDefault();
+    let groupid = localStorage.getItem("selectedGroup")
+    let token = localStorage.getItem("token")
+    let obj={
+        groupid,email:email_id,
+    }
+    console.log(obj)
+    try {
+        let res = await axios.post("http://localhost:3000/admin",obj)
+        if(res.status == 201)
+        {
+            alert(res.data.message)
+            window.location.href ="/chatapp.html"
+        }
+    } catch (error) {
+        alert("Problem in Creating Admin");
+        // Do the required Changes Nitin
+    }
+
+}
+async function RemoveUserAdmin(event,email_id)
+{
+    let groupid = localStorage.getItem("selectedGroup");
+    let obj={
+        groupid,email:email_id,
+    }
+    try {
+        let res = await axios.post("http://localhost:3000/removeadmin",obj)
+        if(res.status == 200)
+        {
+            alert(res.data.message)
+            window.location.href ="/chatapp.html"
+        }
+    } catch (error) {
+        alert("Problem in Deleting Admin");
+        // Do the required Changes Nitin
+    }
+}
+async function RemoveUserFromGroup(event,email_id)
+{
+    let groupid = localStorage.getItem("selectedGroup");
+    let obj={
+        groupid,email:email_id,
+    }
+    try {
+        let res = await axios.post("http://localhost:3000/removeuser",obj)
+        if(res.status == 200)
+        {
+            alert(res.data.message)
+            window.location.href ="/chatapp.html"
+        }
+    } catch (error) {
+        alert("Problem in Removing User");
+    }
+}
+
+document.getElementById("savechanges").addEventListener("click",(event)=>{
+    UpdateGroupUsers(event);
+})
+async function UpdateGroupUsers(event)
+{
+    event.preventDefault();
+    console.log("Hey it's Working!!!!")
+    var checkboxes = document.getElementsByClassName("editcheckbox1");
+    var selectedCheckboxes = Array.from(checkboxes).filter(checkbox => checkbox.checked);
+    var selectedValues = selectedCheckboxes.map(checkbox => checkbox.value);
+    console.log("Selected Checkboxes:", selectedValues);
+    let arr = Array.from(selectedValues)
+    console.log(arr)
+    let groupid = localStorage.getItem("selectedGroup")
+    let obj ={
+        arr,groupid
+    }
+    try {
+        let res = await axios.post("http://localhost:3000/addusers",obj);
+        if(res.status == 201)
+        {
+            alert(res.data.message)
+            window.location.href ="/chatapp.html"
+        }
+    } catch (error) {
+        alert("Error in Adding Members to group!!")
+    }
 }

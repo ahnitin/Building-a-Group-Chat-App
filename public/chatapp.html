@@ -72,29 +72,27 @@
         </div>
       </div>
     </div>
-     <!--Signup modal-->
-  <div class="modal fade" id="signup-form">
+     <!--editgroup modal-->
+  <div class="modal fade" id="editgroup-form">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content ">
         <div class="modal-header text-bg-success bg-opacity-50 text-black">
-          <h2>Hackers</h2>
-          <button class="btn btn-close" data-bs-dismiss="modal" data-bs-target="#signup-form"></button>
+          <h2 id="group__name">Group Name</h2>
+          <button class="btn btn-close" data-bs-dismiss="modal" data-bs-target="#editgroup-form"></button>
         </div>
         <div class="modal-body text-bg-success bg-opacity-25 text-black">
-          <form action="" method="" id="myForm1">
+            <legend>Group Members</legend>
+            <fieldset id="Group_Members">
+              
+            </fieldset>
+            <legend>Other Users</legend>
             <fieldset id="slectedgroupsusers">
-              <legend>Select Users</legend>
+
             </fieldset>
             <div class="form-group text-center mt-4 ">
-              <input type="submit" class="btn btn-success submit" value="Save Changes" id="signup">
+              <input type="submit" class="btn btn-success submit" value="Save Changes" id="savechanges">
             </div>
-            <div class="alert alert-warning alert-dismissible fade show mt-3 d-none" role="alert" id="passwordDiv1">
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <div class="alert bg-success alert-dismissible fade show mt-3 d-none" role="alert" id="successDiv1">
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-          </form>
+            
         </div>
       </div>
     </div>

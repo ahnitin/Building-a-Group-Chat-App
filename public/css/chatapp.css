@@ -181,3 +181,13 @@ header{
     width: 250px;
     margin-left: 10px;
 }
+#slectedgroupsusers{
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+#Group_Members{
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
