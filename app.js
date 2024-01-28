@@ -1,4 +1,6 @@
 const express = require("express");
+const { createServer } = require("http");
+const { Server } = require("socket.io");
 const app = express();
 const env = require("dotenv");
 const cors = require("cors");
@@ -15,6 +17,7 @@ const Chats = require("./models/chats");
 const Groups = require('./models/groups')
 const ForgetPassword = require("./models/forgotpassword");
 const Admin = require("./models/admin");
+const websocketService = require('./services/websocket');
 app.use(express.urlencoded({extended:false}));
 app.use(express.json());
 app.use(cors({
@@ -28,6 +31,14 @@ app.use("/password",passwordRoutes);
 app.use((req,res)=>{
     res.sendFile(path.join(__dirname,`${req.url}`))
 })
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: ["https://admin.socket.io",],
+    credentials: true
+  }
+});
+io.on('connection', websocketService )
 
 User.hasMany(Chats)
 Chats.belongsTo(User);
@@ -51,7 +62,7 @@ async function main()
     try {
         await sequelize.sync({force:false});
         console.log("Database Connection Successfull");
-        app.listen(process.env.PORT || 3000);
+        httpServer.listen(process.env.PORT || 3000);
         console.log("connected to Port",process.env.PORT);
     } catch (error) {
         console.log("Connection Failed")

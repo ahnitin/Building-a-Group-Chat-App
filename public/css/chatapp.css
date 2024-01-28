@@ -41,7 +41,7 @@ nav button:hover{
     
 }
 header{
-    background-color: rgb(35, 32, 29);
+    background: linear-gradient(45deg,rgb(43, 40, 37),rgb(28, 25, 22),rgb(99, 96, 94),rgb(74, 73, 72));
     height: 40px;
 }
 #heading{
@@ -55,7 +55,7 @@ header{
     position: fixed;
     height: 550px;
     width: 100%;
-    background-color: rgb(107, 161, 163);
+    background-color: rgb(235, 246, 246);
     display: flex;
     flex-direction: row;
 }
@@ -63,13 +63,15 @@ header{
     width: 30%;
     height: 100%;
     border-radius: 30px;
-    background-color: #b1d653;
+    background-color: #e7eade;
 }
 #box2{
     width: 70%;
     height: 100%;
     border-radius: 30px;
     background-color: rgb(230, 222, 222);
+    background: linear-gradient(45deg,rgb(240, 221, 221),rgb(158, 156, 156),rgb(134, 112, 112),rgb(230, 222, 222));
+
 }
 #typebox{
     display: flex;
@@ -77,11 +79,11 @@ header{
     height: 50px;
     position: fixed;
     bottom: 2px;
-    background-color: rgb(230, 222, 222);
+    background: linear-gradient(45deg,rgb(240, 221, 221),rgb(158, 156, 156),rgb(134, 112, 112),rgb(230, 222, 222));
 }
 #typebox button{
     border: none;
-    background-color: rgb(230, 222, 222);
+    background: linear-gradient(45deg,rgb(240, 221, 221),rgb(158, 156, 156),rgb(134, 112, 112),rgb(230, 222, 222));
 }
 #typebox button :active{
     border: none;
@@ -92,7 +94,7 @@ header{
     height: 40px;
     margin-bottom: 5px;
     border-radius: 10px;
-    background-color: rgb(230, 222, 222);
+    background: linear-gradient(45deg,rgb(240, 221, 221),rgb(158, 156, 156),rgb(134, 112, 112),rgb(230, 222, 222));
 }
 #attach{
    font-size: 30px;
@@ -104,7 +106,7 @@ header{
     width: 100%;
     height: 30px;
     position: relative;
-    background-color: rgb(35, 136, 47);
+    background: linear-gradient(45deg,rgb(139, 139, 233),rgb(78, 78, 137),rgb(83, 83, 182),rgb(85, 85, 249));
     border-radius: 10px;
     text-align: center;
     
@@ -129,15 +131,13 @@ header{
 #groups{
     height: 275px;
     width: 100%;
-    border-radius: 30px;
-    background-color: #9e68b6;
+    background: linear-gradient(45deg,rgb(139, 139, 233),rgb(78, 78, 137),rgb(83, 83, 182),rgb(85, 85, 249));
     overflow-y: scroll;
 }
 #addgroup{
     height: 275px;
     width: 100%;
-    background-color: aqua;
-    border-radius: 20px;
+    background: linear-gradient(45deg,rgb(139, 139, 233),rgb(106, 106, 187),rgb(83, 83, 182),rgb(85, 85, 249));
     overflow-y: scroll;
 }
 #selectusers{
@@ -150,8 +150,9 @@ header{
 }
 #newgroup button{
     position: relative;
-    left: 250px;
-    background-color: #efd843;
+    width: 150px;
+    left: 200px;
+    background: linear-gradient(45deg,rgb(235, 27, 27),rgb(211, 81, 81),rgb(234, 87, 87),rgb(238, 63, 63));
     border-style: outset;
 }
 #newgroup input{
@@ -179,7 +180,9 @@ header{
 }
 .groupinput{
     width: 250px;
+    height: 50px;
     margin-left: 10px;
+    background: linear-gradient(45deg,rgb(118, 210, 134),rgb(32, 159, 55),rgb(61, 187, 84),rgb(52, 167, 73));
 }
 #slectedgroupsusers{
     display: flex;
@@ -190,4 +193,23 @@ header{
     display: flex;
     flex-direction: column;
     overflow: auto;
+}
+.EditRemovebtn{
+    margin-left: 5px;
+    border-radius: 5px;
+    border-color: #e7eade;
+    background: linear-gradient(45deg,rgb(118, 210, 134),rgb(32, 159, 55),rgb(61, 187, 84),rgb(52, 167, 73));
+}
+#divforimage{
+    height: 200px;
+    width: 200px;
+    margin-bottom: 10px;
+    margin-left: 125px;
+    border-radius: 100%;
+    background-size: contain; 
+    background-repeat: no-repeat;
+}
+#profilecontainer{
+    display: flex;
+    flex-direction: column;
 }

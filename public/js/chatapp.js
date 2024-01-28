@@ -1,3 +1,11 @@
+const socket = io(window.location.origin);
+socket.on('group-message', (groupId) => {
+    let id = localStorage.getItem("selectedGroup")
+    if (id == groupId) {
+        Refresh(groupId)
+    }
+})
+
 document.getElementById("sendbtn").addEventListener("click",(event)=>{
     SendMessage(event)
 })
@@ -21,6 +29,7 @@ function AddingToList(name)
     li.textContent = `${name} Joined`;
     li.className = "list-group-item"
     li.style.textAlign = "center"
+    li.style.left ="350px"
     li.style.backgroundColor = "#c5c064"
     parent.appendChild(li);
 }
@@ -151,7 +160,9 @@ async function SendMessage(event)
         let groupid = localStorage.getItem("selectedGroup");
         let token = localStorage.getItem("token");
         let res = await axios.post(`http://localhost:3000/chats?groupid=${groupid}`,obj,{headers:{"Authorization":token}})
+        socket.emit('new-group-message', groupid)
         ShowMyChatsOnScreen(res.data.chat);
+        document.getElementById("message").value = "";
     } catch (error) {
         document.body.innerHTML += `<ul id="SomethingWrong">
         <li class= "list-group-item" style="background-color: yellow; color:red; height: 35px; width:200px; text-align:center;" >
@@ -171,7 +182,7 @@ function ShowMyChatsOnScreen(obj)
 {
     let parent = document.getElementById("chats");
     let li = document.createElement("li");
-    li.textContent = obj.message;
+    li.innerHTML = `<big><sup style="text-align: right;">~You: </sup> ${obj.message}</big>`;
     li.className = "list-group-item"
     li.style.left = "700px";
     li.style.textAlign = "right"
@@ -322,15 +333,7 @@ async function SelectedGroup(id,name)
     parent.innerHTML = `${name}`
     Refresh(id)
 }
-// Auto Refresh Function
-function autoRefresh() {
-    let id = localStorage.getItem("selectedGroup")
-    if(id)
-    {
-    Refresh(id);
-    }
-}
-setInterval(autoRefresh, 10000);
+
 localStorage.removeItem("selectedGroup");
 
 // Button for edititng the Group only for admins
@@ -366,6 +369,7 @@ async function EditSelectedGroup(event,grpid,name)
                 <input type="checkbox" class="editcheckbox" value="${adminUsers[i].email}" readonly checked> ${adminUsers[i].name}`
                 let adminbtn = document.createElement("button");
                 adminbtn.innerHTML ="Remove Admin"
+                adminbtn.className="EditRemovebtn"
                 adminbtn.addEventListener("click",(event)=>{
                     let a = adminbtn.previousElementSibling.value;
                     console.log(a)
@@ -373,6 +377,7 @@ async function EditSelectedGroup(event,grpid,name)
                 })
                 let RemoveUserBtn = document.createElement("button");
                 RemoveUserBtn.innerHTML ="Remove User";
+                RemoveUserBtn.className="EditRemovebtn"
                 RemoveUserBtn.addEventListener("click",(event)=>{
                     let a = RemoveUserBtn.previousElementSibling.previousElementSibling.value;
                     console.log(a)
@@ -392,6 +397,7 @@ async function EditSelectedGroup(event,grpid,name)
             <input type="checkbox" class="editcheckbox" value="${groupUsers[i].email}" readonly checked> ${groupUsers[i].name}`
             let adminbtn = document.createElement("button");
             adminbtn.innerHTML ="Add as Admin"
+            adminbtn.className="EditRemovebtn"
             adminbtn.addEventListener("click",(event)=>{
                 let a = adminbtn.previousElementSibling.value;
                 console.log(a)
@@ -399,6 +405,7 @@ async function EditSelectedGroup(event,grpid,name)
             })
             let RemoveUserBtn = document.createElement("button");
                 RemoveUserBtn.innerHTML ="Remove User";
+                RemoveUserBtn.className="EditRemovebtn"
                 RemoveUserBtn.addEventListener("click",(event)=>{
                     let a = RemoveUserBtn.previousElementSibling.previousElementSibling.value;
                     console.log(a)
@@ -507,3 +514,22 @@ async function UpdateGroupUsers(event)
         alert("Error in Adding Members to group!!")
     }
 }
+
+function previewImage() {
+    const fileInput = document.getElementById('fileInput');
+    const previewImage = document.getElementById('divforimage');
+    
+    const file = fileInput.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            previewImage.src = event.target.result;
+            previewImage.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+        console.log('Path:', file);
+    }
+}
+
+// Add event listener to file input
+document.getElementById('fileInput').addEventListener('change', previewImage);
