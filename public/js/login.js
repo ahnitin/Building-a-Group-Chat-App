@@ -11,7 +11,7 @@ async function LoginForm(event)
         let obj ={
             email,password
         }
-        let res = await axios.post("http://localhost:3000/login",obj);
+        let res = await axios.post("http://54.174.11.103:3000/login",obj);
         if(res.status===201) {
             alert(res.data.message);
             localStorage.setItem("token",res.data.token);

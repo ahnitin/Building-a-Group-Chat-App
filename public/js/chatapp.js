@@ -53,7 +53,7 @@ async function Refresh(id) {
     }
 
     let res = await axios.get(
-      `http://localhost:3000/chats?items=${lastitem}&groupid=${id}`,
+      `http://54.174.11.103:3000/chats?items=${lastitem}&groupid=${id}`,
       { headers: { Authorization: token } }
     );
     StoreToLocalStorage(
@@ -162,7 +162,7 @@ async function SendMessage(event) {
     let groupid = localStorage.getItem("selectedGroup");
     let token = localStorage.getItem("token");
     let res = await axios.post(
-      `http://localhost:3000/chats?groupid=${groupid}`,
+      `http://54.174.11.103:3000/chats?groupid=${groupid}`,
       obj,
       { headers: { Authorization: token } }
     );
@@ -227,7 +227,7 @@ function scrollToBottom(element) {
 // Getting Users for the groups which will be Created
 async function UsersforGroups() {
   try {
-    let res = await axios.get("http://localhost:3000/users");
+    let res = await axios.get("http://54.174.11.103:3000/users");
     if (res.status == 201) {
       ShowUsers(res.data.users);
     }
@@ -273,7 +273,7 @@ async function CreateNewGroup(event) {
   };
   let token = localStorage.getItem("token");
   try {
-    let res = await axios.post("http://localhost:3000/groups", obj, {
+    let res = await axios.post("http://54.174.11.103:3000/groups", obj, {
       headers: { Authorization: token },
     });
   } catch (error) {
@@ -283,7 +283,7 @@ async function CreateNewGroup(event) {
 async function GetGroups() {
   let token = localStorage.getItem("token");
   try {
-    let res = await axios.get("http://localhost:3000/groups", {
+    let res = await axios.get("http://54.174.11.103:3000/groups", {
       headers: { Authorization: token },
     });
     console.log(res.data.admins);
@@ -351,7 +351,7 @@ async function EditSelectedGroup(event, grpid, name) {
   event.preventDefault();
   try {
     let res = await axios.get(
-      `http://localhost:3000/Allusers?groupid=${grpid}`
+      `http://54.174.11.103:3000/Allusers?groupid=${grpid}`
     );
     if (res.status == 200) {
       ShowgroupUsers(
@@ -447,7 +447,7 @@ async function CreateUserAdmin(event, email_id) {
   };
   console.log(obj);
   try {
-    let res = await axios.post("http://localhost:3000/admin", obj);
+    let res = await axios.post("http://54.174.11.103:3000/admin", obj);
     if (res.status == 201) {
       alert(res.data.message);
       window.location.href = "/chatapp.html";
@@ -464,7 +464,7 @@ async function RemoveUserAdmin(event, email_id) {
     email: email_id,
   };
   try {
-    let res = await axios.post("http://localhost:3000/removeadmin", obj);
+    let res = await axios.post("http://54.174.11.103:3000/removeadmin", obj);
     if (res.status == 200) {
       alert(res.data.message);
       window.location.href = "/chatapp.html";
@@ -481,7 +481,7 @@ async function RemoveUserFromGroup(event, email_id) {
     email: email_id,
   };
   try {
-    let res = await axios.post("http://localhost:3000/removeuser", obj);
+    let res = await axios.post("http://54.174.11.103:3000/removeuser", obj);
     if (res.status == 200) {
       alert(res.data.message);
       window.location.href = "/chatapp.html";
@@ -511,7 +511,7 @@ async function UpdateGroupUsers(event) {
     groupid,
   };
   try {
-    let res = await axios.post("http://localhost:3000/addusers", obj);
+    let res = await axios.post("http://54.174.11.103:3000/addusers", obj);
     if (res.status == 201) {
       alert(res.data.message);
       window.location.href = "/chatapp.html";
@@ -553,7 +553,7 @@ document
     let groupid = localStorage.getItem("selectedGroup");
     try {
       const response = await axios.post(
-        `http://localhost:3000/uploadfiles?groupid=${groupid}`,
+        `http://54.174.11.103:3000/uploadfiles?groupid=${groupid}`,
         formData,
         {
           headers: {

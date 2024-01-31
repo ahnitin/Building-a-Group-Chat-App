@@ -5,6 +5,9 @@ const app = express();
 const env = require("dotenv");
 const cors = require("cors");
 const path = require("path");
+const cookieParser = require("cookie-parser");
+const cronService = require("./services/corn");
+cronService.job.start();
 env.config();
 
 const userRoutes = require("./routes/user");
@@ -12,6 +15,7 @@ const chatRoutes = require("./routes/chats");
 const passwordRoutes = require("./routes/resetPassword");
 
 const sequelize = require("./connection/database");
+const ArchivedChat = require("./models/archeived-chat");
 const User = require("./models/user");
 const Chats = require("./models/chats");
 const Groups = require("./models/groups");
@@ -19,6 +23,7 @@ const ForgetPassword = require("./models/forgotpassword");
 const Admin = require("./models/admin");
 const websocketService = require("./services/websocket");
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 app.use(express.json());
 app.use(
   cors({
@@ -59,12 +64,12 @@ Groups.hasMany(Admin);
 
 async function main() {
   try {
-    await sequelize.sync({ force: false });
+    await sequelize.sync({ force: true });
     console.log("Database Connection Successfull");
     httpServer.listen(process.env.PORT || 3000);
     console.log("connected to Port", process.env.PORT);
   } catch (error) {
-    console.log("Connection Failed");
+    console.log(error);
   }
 }
 main();

@@ -1,10 +1,11 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../connection/database");
-const Chats = sequelize.define(
-  "chat",
+
+const ArchivedChat = sequelize.define(
+  "ArchivedChat",
   {
     id: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.BIGINT,
       autoIncrement: true,
       allowNull: false,
       primaryKey: true,
@@ -15,14 +16,22 @@ const Chats = sequelize.define(
     },
     isImage: {
       type: Sequelize.BOOLEAN,
+      defaultValue: false,
     },
     date_time: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+    },
+    UserId: {
+      type: Sequelize.BIGINT,
+    },
+    GroupId: {
+      type: Sequelize.BIGINT,
     },
   },
   {
     timestamps: false,
   }
 );
-module.exports = Chats;
+
+module.exports = ArchivedChat;
