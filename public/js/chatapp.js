@@ -167,8 +167,8 @@ async function SendMessage(event) {
       { headers: { Authorization: token } }
     );
     socket.emit("new-group-message", groupid);
-    ShowMyChatsOnScreen(res.data.chat);
     document.getElementById("message").value = "";
+    ShowMyChatsOnScreen(res.data.chat);
   } catch (error) {
     document.body.innerHTML += `<ul id="SomethingWrong">
         <li class= "list-group-item" style="background-color: yellow; color:red; height: 35px; width:200px; text-align:center;" >
@@ -185,8 +185,8 @@ async function SendMessage(event) {
   }
 }
 function ShowMyChatsOnScreen(obj) {
+  let parent = document.getElementById("chats");
   if (obj.isImage) {
-    let parent = document.getElementById("chats");
     let li = document.createElement("li");
     li.innerHTML = `<big><sup style="text-align: right;">~You: </sup><img src="${obj.message}" height="150px" width="100%"></big>`;
     li.className = "list-group-item";
@@ -194,7 +194,6 @@ function ShowMyChatsOnScreen(obj) {
     li.style.backgroundColor = "grey";
     parent.appendChild(li);
   } else {
-    let parent = document.getElementById("chats");
     let li = document.createElement("li");
     li.innerHTML = `<big><sup style="text-align: right;">~You: </sup> ${obj.message}</big>`;
     li.className = "list-group-item";
@@ -276,6 +275,9 @@ async function CreateNewGroup(event) {
     let res = await axios.post("http://54.174.11.103:3000/groups", obj, {
       headers: { Authorization: token },
     });
+    if (res.status == 201) {
+      Refresh(res.data.groupId);
+    }
   } catch (error) {
     alert("Unable to create Group");
   }
@@ -351,7 +353,7 @@ async function EditSelectedGroup(event, grpid, name) {
   event.preventDefault();
   try {
     let res = await axios.get(
-      `http://54.174.11.103:3000/Allusers?groupid=${grpid}`
+      `http://54.174.11.103:3000/all-users?groupid=${grpid}`
     );
     if (res.status == 200) {
       ShowgroupUsers(
@@ -464,7 +466,7 @@ async function RemoveUserAdmin(event, email_id) {
     email: email_id,
   };
   try {
-    let res = await axios.post("http://54.174.11.103:3000/removeadmin", obj);
+    let res = await axios.post("http://54.174.11.103:3000/remove-admin", obj);
     if (res.status == 200) {
       alert(res.data.message);
       window.location.href = "/chatapp.html";
@@ -481,7 +483,7 @@ async function RemoveUserFromGroup(event, email_id) {
     email: email_id,
   };
   try {
-    let res = await axios.post("http://54.174.11.103:3000/removeuser", obj);
+    let res = await axios.post("http://54.174.11.103:3000/remove-user", obj);
     if (res.status == 200) {
       alert(res.data.message);
       window.location.href = "/chatapp.html";
@@ -511,7 +513,7 @@ async function UpdateGroupUsers(event) {
     groupid,
   };
   try {
-    let res = await axios.post("http://54.174.11.103:3000/addusers", obj);
+    let res = await axios.post("http://54.174.11.103:3000/add-users", obj);
     if (res.status == 201) {
       alert(res.data.message);
       window.location.href = "/chatapp.html";

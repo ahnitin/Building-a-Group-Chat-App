@@ -11,6 +11,7 @@ router.post(
   chatController.postAddChat
 );
 router.get("/chats", userAuthentication.authenticate, chatController.getChats);
+
 router.post(
   "/groups",
   userAuthentication.authenticate,
@@ -21,17 +22,18 @@ router.get(
   userAuthentication.authenticate,
   chatController.getGroups
 );
-
+// Route for uploading files
 router.post(
   "/uploadfiles",
   upload.single("image"),
   userAuthentication.authenticate,
   chatController.postAddFiles
 );
-router.get("/Allusers", chatController.getAllUsers);
+
+router.get("/all-users", chatController.getAllUsers);
 router.post("/admin", chatController.CreateUserAdmin);
-router.post("/removeadmin", chatController.romoveAdmin);
-router.post("/removeuser", chatController.romoveGroupUser);
-router.post("/addusers", chatController.postAddUsersToGroup);
+router.post("/remove-admin", chatController.romoveAdmin);
+router.post("/remove-user", chatController.romoveGroupUser);
+router.post("/add-users", chatController.postAddUsersToGroup);
 
 module.exports = router;

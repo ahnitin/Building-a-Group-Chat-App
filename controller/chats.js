@@ -6,7 +6,7 @@ const User = require("../models/user");
 const Groups = require("../models/groups");
 const Admin = require("../models/admin");
 const fs = require("fs");
-const awsService = require("../services/awsS3");
+const awsService = require("../services/aws_s3");
 exports.postAddChat = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -98,6 +98,9 @@ exports.postAddGroup = async (req, res) => {
       email: req.user.email,
       groupId: Group.id,
       userId: req.user.id,
+    });
+    res.status(201).json({
+      groupId: Group.id,
     });
   } catch (error) {
     res.status(500).json({
