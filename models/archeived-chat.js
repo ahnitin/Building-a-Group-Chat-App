@@ -1,5 +1,5 @@
 const Sequelize = require("sequelize");
-const sequelize = require("../connection/database");
+const sequelize = require("../connections/database");
 
 const ArchivedChat = sequelize.define(
   "ArchivedChat",

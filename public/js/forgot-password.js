@@ -5,7 +5,7 @@ async function ForgotForm(event) {
   event.preventDefault();
   let email = document.getElementById("email").value;
   try {
-    await axios.post("http://54.174.11.103:3000/password/forgotpassword", {
+    await axios.post("http://localhost:3000/password/forgotpassword", {
       email,
     });
   } catch (error) {

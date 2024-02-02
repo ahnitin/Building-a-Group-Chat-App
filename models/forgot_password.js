@@ -1,5 +1,5 @@
 const Sequelize = require("sequelize");
-const sequelize = require("../connection/database");
+const sequelize = require("../connections/database");
 const Forgotpassword = sequelize.define("forgotpassword", {
   id: {
     type: Sequelize.UUID,

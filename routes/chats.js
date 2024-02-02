@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const userAuthentication = require("../middleware/auth");
-const chatController = require("../controller/chats");
+const userAuthentication = require("../middlewares/auth");
+const chatController = require("../controllers/chats");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 

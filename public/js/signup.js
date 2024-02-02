@@ -16,7 +16,7 @@ async function SignupForm(event) {
   };
   try {
     console.log(obj);
-    let res = await axios.post("http://54.174.11.103:3000/signup", obj);
+    let res = await axios.post("http://localhost:3000/signup", obj);
     if (res.status == 201) {
       alert(res.data.message);
       window.location.href = "./login.html";

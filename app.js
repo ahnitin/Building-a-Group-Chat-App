@@ -12,7 +12,7 @@ const userRoutes = require("./routes/user");
 const chatRoutes = require("./routes/chats");
 const passwordRoutes = require("./routes/reset_password");
 
-const sequelize = require("./connection/database");
+const sequelize = require("./connections/database");
 //const ArchivedChat = require("./models/archeived-chat");
 const User = require("./models/user");
 const Chats = require("./models/chats");

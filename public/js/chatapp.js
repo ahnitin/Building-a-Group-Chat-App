@@ -1,8 +1,9 @@
 const socket = io(window.location.origin);
-socket.on("group-message", (groupId) => {
+socket.on("group-message", (groupId, chat, name) => {
   let id = localStorage.getItem("selectedGroup");
+  console.log("groupId");
   if (id == groupId) {
-    Refresh(groupId);
+    ChatOnScreenWS(chat, name);
   }
 });
 
@@ -53,7 +54,7 @@ async function Refresh(id) {
     }
 
     let res = await axios.get(
-      `http://54.174.11.103:3000/chats?items=${lastitem}&groupid=${id}`,
+      `http://localhost:3000/chats?items=${lastitem}&groupid=${id}`,
       { headers: { Authorization: token } }
     );
     StoreToLocalStorage(
@@ -99,6 +100,21 @@ function StoreToLocalStorage(data, id, name, users) {
   } else ChatsOnScreen(expenses, id, name, users);
 }
 // DOM Manupulation for adding chats on Screen
+function ChatOnScreenWS(chat, name) {
+  let parent = document.getElementById("chats");
+  if (chat.isImage) {
+    let li = document.createElement("li");
+    li.innerHTML = `<big><sup style="text-align: right;">~${name}: </sup><img src="${chat.message}" height="150px" width="100%"></big>`;
+    li.className = "list-group-item";
+    parent.appendChild(li);
+  } else {
+    let li = document.createElement("li");
+    li.innerHTML = `<big><sup>~${name}: </sup> ${chat.message}</big>`;
+    li.className = "list-group-item";
+    parent.appendChild(li);
+  }
+  scrollToBottom(parent);
+}
 function ChatsOnScreen(arr, id, name, users) {
   AddingToList("You");
   let i = 0;
@@ -155,18 +171,21 @@ function ChatsOnScreen(arr, id, name, users) {
 async function SendMessage(event) {
   event.preventDefault();
   let message = document.getElementById("message").value;
+  let token = localStorage.getItem("token");
+  let parsedToken = parseJwt(token);
+  let userName = parsedToken.name;
   let obj = {
     message,
   };
   try {
     let groupid = localStorage.getItem("selectedGroup");
-    let token = localStorage.getItem("token");
     let res = await axios.post(
-      `http://54.174.11.103:3000/chats?groupid=${groupid}`,
+      `http://localhost:3000/chats?groupid=${groupid}`,
       obj,
       { headers: { Authorization: token } }
     );
-    socket.emit("new-group-message", groupid);
+    console.log(res.data.chat);
+    socket.emit("new-group-message", groupid, res.data.chat, userName);
     document.getElementById("message").value = "";
     ShowMyChatsOnScreen(res.data.chat);
   } catch (error) {
@@ -226,7 +245,7 @@ function scrollToBottom(element) {
 // Getting Users for the groups which will be Created
 async function UsersforGroups() {
   try {
-    let res = await axios.get("http://54.174.11.103:3000/users");
+    let res = await axios.get("http://localhost:3000/users");
     if (res.status == 201) {
       ShowUsers(res.data.users);
     }
@@ -272,7 +291,7 @@ async function CreateNewGroup(event) {
   };
   let token = localStorage.getItem("token");
   try {
-    let res = await axios.post("http://54.174.11.103:3000/groups", obj, {
+    let res = await axios.post("http://localhost:3000/groups", obj, {
       headers: { Authorization: token },
     });
     if (res.status == 201) {
@@ -285,7 +304,7 @@ async function CreateNewGroup(event) {
 async function GetGroups() {
   let token = localStorage.getItem("token");
   try {
-    let res = await axios.get("http://54.174.11.103:3000/groups", {
+    let res = await axios.get("http://localhost:3000/groups", {
       headers: { Authorization: token },
     });
     console.log(res.data.admins);
@@ -353,7 +372,7 @@ async function EditSelectedGroup(event, grpid, name) {
   event.preventDefault();
   try {
     let res = await axios.get(
-      `http://54.174.11.103:3000/all-users?groupid=${grpid}`
+      `http://localhost:3000/all-users?groupid=${grpid}`
     );
     if (res.status == 200) {
       ShowgroupUsers(
@@ -449,7 +468,7 @@ async function CreateUserAdmin(event, email_id) {
   };
   console.log(obj);
   try {
-    let res = await axios.post("http://54.174.11.103:3000/admin", obj);
+    let res = await axios.post("http://localhost:3000/admin", obj);
     if (res.status == 201) {
       alert(res.data.message);
       window.location.href = "/chatapp.html";
@@ -466,7 +485,7 @@ async function RemoveUserAdmin(event, email_id) {
     email: email_id,
   };
   try {
-    let res = await axios.post("http://54.174.11.103:3000/remove-admin", obj);
+    let res = await axios.post("http://localhost:3000/remove-admin", obj);
     if (res.status == 200) {
       alert(res.data.message);
       window.location.href = "/chatapp.html";
@@ -483,7 +502,7 @@ async function RemoveUserFromGroup(event, email_id) {
     email: email_id,
   };
   try {
-    let res = await axios.post("http://54.174.11.103:3000/remove-user", obj);
+    let res = await axios.post("http://localhost:3000/remove-user", obj);
     if (res.status == 200) {
       alert(res.data.message);
       window.location.href = "/chatapp.html";
@@ -513,7 +532,7 @@ async function UpdateGroupUsers(event) {
     groupid,
   };
   try {
-    let res = await axios.post("http://54.174.11.103:3000/add-users", obj);
+    let res = await axios.post("http://localhost:3000/add-users", obj);
     if (res.status == 201) {
       alert(res.data.message);
       window.location.href = "/chatapp.html";
@@ -552,10 +571,12 @@ document
     const fileInput = document.getElementById("fileInput1");
     formData.append("image", fileInput.files[0]);
     const token = localStorage.getItem("token");
+    let parsedToken = parseJwt(token);
+    let userName = parsedToken.name;
     let groupid = localStorage.getItem("selectedGroup");
     try {
       const response = await axios.post(
-        `http://54.174.11.103:3000/uploadfiles?groupid=${groupid}`,
+        `http://localhost:3000/uploadfiles?groupid=${groupid}`,
         formData,
         {
           headers: {
@@ -565,6 +586,12 @@ document
         }
       );
       ShowMyChatsOnScreen(response.data.imagemsg);
+      socket.emit(
+        "new-group-message",
+        groupid,
+        response.data.imagemsg,
+        userName
+      );
     } catch (error) {
       console.error("Error uploading image:", error);
     }
